@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JARVIS">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>JARVIS — Personal AI Companion</title>
+<style>
+:root{--bg:#07101d;--panel:#101d2d;--panel2:#14243a;--line:#233c55;--cyan:#67e1ff;--blue:#258fbd;--text:#f2f7ff;--muted:#9cb0c7;--green:#70e2b2;--amber:#ffd27a;--danger:#ff8e9a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#102b45 0%,var(--bg) 55%);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.app{max-width:850px;margin:auto;padding:env(safe-area-inset-top) 16px calc(90px + env(safe-area-inset-bottom))}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 2px 14px}.eyebrow{font-size:11px;letter-spacing:2px;color:var(--cyan);font-weight:800}.brand{font-size:30px;font-weight:800;letter-spacing:3px;margin:2px 0}.sub{color:var(--muted);font-size:13px}.pill{border:1px solid #28516c;background:#10283b;color:var(--cyan);padding:7px 10px;border-radius:99px;font-size:12px}
+.hero{border:1px solid #28516c;border-radius:24px;background:linear-gradient(140deg,#112a42dd,#0a1524f2);padding:22px 18px;margin:8px 0 16px;text-align:center;box-shadow:0 15px 45px #0003}
+.orb{width:116px;height:116px;margin:2px auto 12px;border:1px solid #4abbdc;border-radius:50%;display:grid;place-items:center;position:relative;background:radial-gradient(circle,#17496a 0%,#0d2238 60%,#08111f 100%);box-shadow:0 0 34px #30bde533,inset 0 0 20px #3cc9f222}
+.orb:before,.orb:after{content:"";position:absolute;border:1px solid #3eb3d966;border-radius:50%;inset:-9px}.orb:after{inset:-17px;border-style:dashed;opacity:.6}.orb.listening{animation:pulse 1.4s infinite}.orb.speaking{box-shadow:0 0 45px #67e1ff77}
+@keyframes pulse{50%{transform:scale(1.04);box-shadow:0 0 45px #67e1ff77}}
+.orb span{font-size:34px;color:var(--cyan)}.hero h2{margin:4px 0 4px;font-size:22px}.hero p{color:var(--muted);margin:0 auto 14px;max-width:420px;font-size:14px}
+.row{display:flex;gap:8px;align-items:center}.center{justify-content:center}.btn{border:1px solid #2e5a75;border-radius:13px;padding:11px 14px;background:#132b41;color:var(--text);font-weight:650}.btn.primary{background:linear-gradient(135deg,#177da6,#205c91);border-color:#52c9eb;color:white}.btn.ghost{background:transparent}.btn.small{font-size:12px;padding:7px 10px}.btn:disabled{opacity:.45;cursor:not-allowed}
+.voice-status{min-height:20px;font-size:12px;color:var(--cyan);margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 18px}.stat{border:1px solid var(--line);border-radius:16px;padding:14px;background:#0e1b2b}.stat .icon{font-size:19px;color:var(--cyan)}.stat strong{display:block;font-size:23px;margin:4px 0}.stat span{color:var(--muted);font-size:12px}
+section{border:1px solid var(--line);border-radius:18px;background:#0d1928;padding:16px;margin:12px 0}.section-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.section-head h3{margin:0;font-size:17px}.section-head small{color:var(--muted)}
+input,textarea,select{width:100%;border:1px solid #2a435c;border-radius:11px;background:#091421;color:var(--text);padding:11px 12px;min-width:0}textarea{resize:vertical;min-height:70px}.formrow{display:flex;gap:8px;margin:8px 0}.formrow>*{flex:1}.task{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-top:1px solid #1c3044}.task:first-child{border-top:0}.task input[type=checkbox]{width:19px;height:19px;margin-top:3px;accent-color:#5bd8f7;flex:none}.task-main{flex:1;min-width:0}.task-title{overflow-wrap:anywhere}.task.done .task-title{text-decoration:line-through;color:#72869b}.task-meta{font-size:11px;color:var(--muted);margin-top:3px}.tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:6px;margin-left:5px;background:#1c344a;color:#a9dff0}.tag.high{background:#4b2b2e;color:#ffb0b7}.tag.medium{background:#45391f;color:#ffdb8b}.empty{color:var(--muted);font-size:13px;padding:8px 0}.nav{position:fixed;bottom:0;left:0;right:0;background:#08111fee;backdrop-filter:blur(18px);border-top:1px solid #1d354c;padding:9px 8px calc(9px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:4px;z-index:5}.nav button{flex:1;max-width:145px;border:0;background:transparent;color:var(--muted);font-size:11px;padding:7px 3px;border-radius:10px}.nav button b{display:block;font-size:18px;font-weight:500;margin-bottom:2px}.nav button.active{background:#143047;color:var(--cyan)}
+.view{display:none}.view.active{display:block}.cardlist{display:grid;gap:9px}.integration{border:1px solid #263f56;background:#101f31;border-radius:13px;padding:12px}.integration strong{display:block}.integration p{font-size:12px;color:var(--muted);margin:4px 0 10px}.status{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--amber)}.status.ready{color:var(--green)}.reminder{padding:10px;border-radius:10px;background:#13253a;margin:8px 0;font-size:13px}.toast{position:fixed;left:16px;right:16px;bottom:90px;max-width:500px;margin:auto;background:#dff7ff;color:#08111f;padding:12px 14px;border-radius:12px;box-shadow:0 8px 30px #0006;z-index:10;display:none;font-size:13px}
+footer{color:#748ba4;text-align:center;font-size:11px;padding:18px 4px} .warning{border-left:3px solid var(--amber);padding:9px 11px;background:#2a2417;color:#e6d2a5;font-size:12px;border-radius:0 8px 8px 0}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.cardlist{grid-template-columns:repeat(2,minmax(0,1fr))}.app{padding-left:24px;padding-right:24px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><div class="eyebrow">PERSONAL AI SYSTEM</div><div class="brand">J.A.R.V.I.S.</div><div class="sub">Your day, under control.</div></div><div class="pill" id="datePill">SYSTEM READY</div></header>
+
+<div class="view active" id="view-home">
+<div class="hero">
+  <div class="orb" id="orb"><span>◈</span></div>
+  <h2 id="greeting">Good to see you.</h2>
+  <p id="heroText">Ready when you are. Ask me about your day, or give me a task.</p>
+  <div class="row center"><button class="btn primary" id="voiceBtn">🎙 Talk to JARVIS</button><button class="btn ghost" id="stopVoiceBtn">Stop voice</button></div>
+  <div class="voice-status" id="voiceStatus" aria-live="polite">Voice uses your iPhone's available speech features.</div>
+  <form id="commandForm" class="formrow"><input id="commandInput" placeholder="Type a command…" aria-label="Type a command"><button class="btn" type="submit">Send</button></form>
+</div>
+<div class="grid">
+  <div class="stat"><div class="icon">✓</div><strong id="openCount">0</strong><span>Tasks to do</span></div>
+  <div class="stat"><div class="icon">◷</div><strong id="todayCount">0</strong><span>Due today</span></div>
+  <div class="stat"><div class="icon">♡</div><strong id="peopleCount">0</strong><span>People to check in</span></div>
+  <div class="stat"><div class="icon">✉</div><strong id="noteCount">0</strong><span>Saved notes</span></div>
+</div>
+<section><div class="section-head"><h3>Today's priorities</h3><button class="btn small" data-go="tasks">View all</button></div><div id="homeTasks" class="empty">No tasks yet. Add one in My Tasks.</div></section>
+<section><div class="section-head"><h3>Quick command</h3><small>Try a voice or text command</small></div><div class="row" style="flex-wrap:wrap"><button class="btn small" data-command="What should I focus on today?">Plan my day</button><button class="btn small" data-command="Add task: check in with a friend">Check in with a friend</button><button class="btn small" data-command="Add task: review my emails">Review emails</button></div></section>
+</div>
+
+<div class="view" id="view-tasks">
+<section><div class="section-head"><h3>My Tasks</h3><small id="taskSummary">Stay on top of it</small></div>
+<form id="taskForm"><input id="taskTitle" placeholder="What needs doing?" required maxlength="180"><div class="formrow"><select id="taskPriority" aria-label="Priority"><option value="high">High priority</option><option value="medium" selected>Normal priority</option><option value="low">Low priority</option></select><input id="taskDue" type="date" aria-label="Due date"></div><button class="btn primary" type="submit">＋ Add task</button></form>
+<div id="taskList" style="margin-top:12px"></div></section>
+<section><div class="section-head"><h3>Daily plan</h3><small>Suggested routine</small></div><div class="reminder">☀️ <b>Start:</b> Pick 1–3 realistic priorities.</div><div class="reminder">⏸ <b>Midday:</b> Take a proper break and check what changed.</div><div class="reminder">🌙 <b>Finish:</b> Review unfinished tasks and choose tomorrow's first step.</div><p class="sub">These are suggestions, not scheduled reminders.</p></section>
+</div>
+
+<div class="view" id="view-people">
+<section><div class="section-head"><h3>Friends & family</h3><small>Stay connected</small></div>
+<form id="personForm"><input id="personName" placeholder="Name" required maxlength="100"><div class="formrow"><input id="personReason" placeholder="Reason / note (optional)" maxlength="160"><input id="personDate" type="date" aria-label="Next check-in date"></div><button class="btn primary" type="submit">＋ Add person</button></form><div id="peopleList" style="margin-top:12px"></div></section>
+<section><h3>Message helper</h3><p class="sub">Create a friendly draft you can copy into your messaging app.</p><textarea id="messageContext" placeholder="Who is it for, and what do you want to say?"></textarea><button class="btn primary" id="draftMessage" style="margin-top:8px">Draft a check-in</button><textarea id="messageDraft" placeholder="Your draft will appear here…" style="margin-top:8px"></textarea><button class="btn small" id="copyDraft">Copy draft</button></section>
+</div>
+
+<div class="view" id="view-notes">
+<section><div class="section-head"><h3>Notes & reminders</h3><small>Saved on this device</small></div><form id="noteForm"><input id="noteTitle" placeholder="Note title" required maxlength="100"><textarea id="noteBody" placeholder="Write a note, idea or reminder…" required></textarea><button class="btn primary" type="submit">Save note</button></form><div id="noteList" style="margin-top:12px"></div></section>
+<section><div class="section-head"><h3>Connected services</h3><small>Setup status</small></div><div class="cardlist">
+<div class="integration"><strong>Email</strong><span class="status">Not connected</span><p>Inbox summaries and reply drafts need an authorised provider connection.</p><button class="btn small" data-go="connections">Setup details</button></div>
+<div class="integration"><strong>Calendar</strong><span class="status">Not connected</span><p>Calendar events and real reminders need account access.</p><button class="btn small" data-go="connections">Setup details</button></div>
+</div></section>
+</div>
+
+<div class="view" id="view-connections">
+<section><div class="section-head"><h3>Integrations</h3><small>Connection centre</small></div><div class="warning">No accounts are connected in this prototype. Never enter an email password or social media password here. Real connections should use each provider's secure sign-in and permission screen.</div><div class="cardlist" style="margin-top:12px">
+<div class="integration"><strong>✉ Email</strong><span class="status">Needs setup</span><p>Google Gmail or Microsoft Outlook via OAuth. Read-only first; draft replies for your approval.</p><button class="btn small" data-info="Email integration needs a deployed backend, provider OAuth app and secure token storage.">View requirements</button></div>
+<div class="integration"><strong>▦ Calendar</strong><span class="status">Needs setup</span><p>Google Calendar or Microsoft Calendar. Read events first; create events only with approval.</p><button class="btn small" data-info="Calendar integration needs provider OAuth and API scopes. Notifications need a backend or supported local scheduling.">View requirements</button></div>
+<div class="integration"><strong>♙ Contacts</strong><span class="status">Needs setup</span><p>Import a contact list deliberately, or connect a supported contacts provider.</p><button class="btn small" data-info="Contact access needs explicit permission or a provider connection. This prototype keeps the people you add locally.">View requirements</button></div>
+<div class="integration"><strong>◎ Social media</strong><span class="status">Needs setup</span><p>Availability varies by platform. Some networks restrict private messages and publishing through APIs.</p><button class="btn small" data-info="Choose each social network individually. API access, app review and permissions may be required; private message access is not universal.">View requirements</button></div>
+<div class="integration"><strong>◈ Voice AI</strong><span class="status ready">Basic voice available</span><p>Browser speech recognition and British-English speech synthesis where supported. Natural conversational AI needs an AI backend or voice API.</p><button class="btn small" data-info="The prototype uses built-in device/browser speech features when available. A polished live AI voice may incur API costs and needs a secure server.">View requirements</button></div>
+</div></section>
+<section><h3>Privacy & safety defaults</h3><div class="reminder">🔒 Tasks, people and notes stay in this browser's local storage.</div><div class="reminder">✋ No emails, posts or messages are sent automatically.</div><div class="reminder">🗝 No provider passwords or API secrets belong in front-end code.</div><button class="btn" id="exportData">Export my data</button> <button class="btn ghost" id="clearData">Clear local data</button></section>
+</div>
+<footer>JARVIS prototype · Your data is stored locally on this device. Back it up with Export my data.</footer>
+</div>
+<nav class="nav" aria-label="Main navigation">
+<button class="active" data-view="home"><b>⌂</b>Home</button><button data-view="tasks"><b>✓</b>Tasks</button><button data-view="people"><b>♡</b>People</button><button data-view="notes"><b>▤</b>Notes</button><button data-view="connections"><b>⚙</b>Connect</button>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const $=id=>document.getElementById(id);
+const KEY='jarvis-companion-v1';
+let data={tasks:[],people:[],notes:[]};
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved)data={...data,...saved}}catch(e){}
+const today=()=>new Date().toISOString().slice(0,10);
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(s){$('toast').textContent=s;$('toast').style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('toast').style.display='none',3000)}
+function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===name));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
+const prettyDate=d=>d?new Date(d+'T12:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short'}):'No due date';
+function render(){
+ const open=data.tasks.filter(t=>!t.done),due=open.filter(t=>t.due===today());
+ $('openCount').textContent=open.length;$('todayCount').textContent=due.length;$('peopleCount').textContent=data.people.length;$('noteCount').textContent=data.notes.length;
+ $('homeTasks').innerHTML=open.length?open.slice().sort((a,b)=>({high:0,medium:1,low:2}[a.priority]-({high:0,medium:1,low:2}[b.priority]))).slice(0,4).map(t=>`<div class="task"><div class="task-main"><div class="task-title">${esc(t.title)} <span class="tag ${t.priority}">${esc(t.priority)}</span></div><div class="task-meta">${t.due?'Due '+prettyDate(t.due):'No due date'}</div></div><button class="btn small" onclick="toggleTask('${t.id}')">Done</button></div>`).join(''):'<div class="empty">Nothing on your list yet. Add one small task to get started.</div>';
+ $('taskList').innerHTML=data.tasks.length?data.tasks.slice().sort((a,b)=>Number(a.done)-Number(b.done)).map(t=>`<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} aria-label="Complete ${esc(t.title)}" onchange="toggleTask('${t.id}')"><div class="task-main"><div class="task-title">${esc(t.title)} <span class="tag ${t.priority}">${esc(t.priority)}</span></div><div class="task-meta">${t.due?'Due '+prettyDate(t.due):'No due date'}</div></div><button class="btn small ghost" onclick="deleteTask('${t.id}')">Delete</button></div>`).join(''):'<div class="empty">No tasks yet. Add your first task above.</div>';
+ $('peopleList').innerHTML=data.people.length?data.people.map(p=>`<div class="task"><div class="task-main"><div class="task-title">${esc(p.name)}</div><div class="task-meta">${esc(p.reason||'Someone to keep in touch with')} · ${p.date?'Check in '+prettyDate(p.date):'No check-in date'}</div></div><button class="btn small ghost" onclick="deletePerson('${p.id}')">Remove</button></div>`).join(''):'<div class="empty">Add a friend or family member to create your own check-in list.</div>';
+ $('noteList').innerHTML=data.notes.length?data.notes.slice().reverse().map(n=>`<div class="task"><div class="task-main"><div class="task-title">${esc(n.title)}</div><div class="task-meta" style="white-space:pre-wrap">${esc(n.body)}</div></div><button class="btn small ghost" onclick="deleteNote('${n.id}')">Delete</button></div>`).join(''):'<div class="empty">No saved notes yet.</div>';
+ $('taskSummary').textContent=`${open.length} open · ${data.tasks.filter(t=>t.done).length} complete`;
+}
+function id(){return Math.random().toString(36).slice(2,10)}
+window.toggleTask=i=>{const t=data.tasks.find(x=>x.id===i);if(t)t.done=!t.done;save()};
+window.deleteTask=i=>{data.tasks=data.tasks.filter(x=>x.id!==i);save()};
+window.deletePerson=i=>{data.people=data.people.filter(x=>x.id!==i);save()};
+window.deleteNote=i=>{data.notes=data.notes.filter(x=>x.id!==i);save()};
+$('taskForm').addEventListener('submit',e=>{e.preventDefault();data.tasks.push({id:id(),title:$('taskTitle').value.trim(),priority:$('taskPriority').value,due:$('taskDue').value,done:false,created:Date.now()});$('taskForm').reset();save();toast('Task added.')});
+$('personForm').addEventListener('submit',e=>{e.preventDefault();data.people.push({id:id(),name:$('personName').value.trim(),reason:$('personReason').value.trim(),date:$('personDate').value});$('personForm').reset();save();toast('Added to your check-in list.')});
+$('noteForm').addEventListener('submit',e=>{e.preventDefault();data.notes.push({id:id(),title:$('noteTitle').value.trim(),body:$('noteBody').value.trim(),created:Date.now()});$('noteForm').reset();save();toast('Note saved on this device.')});
+$('draftMessage').addEventListener('click',()=>{let c=$('messageContext').value.trim();$('messageDraft').value=c?`Hey! Just wanted to check in and see how you're doing. ${c} Hope everything's going well — give me a shout when you get a chance!`:`Hey! Just wanted to check in and see how you're doing. Hope everything's going well — give me a shout when you get a chance!`;});
+$('copyDraft').addEventListener('click',async()=>{if(!$('messageDraft').value)return toast('Draft a message first.');try{await navigator.clipboard.writeText($('messageDraft').value);toast('Draft copied.')}catch(e){$('messageDraft').select();toast('Select and copy the draft.') }});
+$('exportData').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='jarvis-backup.json';a.click();URL.revokeObjectURL(a.href);toast('Backup exported.')});
+$('clearData').addEventListener('click',()=>{if(confirm('Delete all JARVIS tasks, people and notes saved in this browser? This cannot be undone.')){data={tasks:[],people:[],notes:[]};save();toast('Local data cleared.')}});
+
+function speak(text){if(!('speechSynthesis'in window)){toast('Speech output is not available in this browser.');return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';const voices=speechSynthesis.getVoices();const british=voices.find(v=>v.lang==='en-GB'&&/male|daniel|george|oliver|arthur/i.test(v.name))||voices.find(v=>v.lang==='en-GB');if(british)u.voice=british;u.rate=.96;u.pitch=.92;$('orb').classList.add('speaking');u.onend=()=> $('orb').classList.remove('speaking');speechSynthesis.speak(u)}
+function respond(command){const c=command.trim();if(!c)return;let reply='I can help with tasks, planning, notes and check-ins. Try “add task: pay a bill” or “what should I focus on today?”';
+const low=c.toLowerCase();
+if(low.startsWith('add task:')||low.startsWith('remind me to ')){let title=c.substring(low.startsWith('add task:')?9:13).trim();if(title){data.tasks.push({id:id(),title,priority:'medium',due:'',done:false,created:Date.now()});save();reply=`Done. I've added ${title} to your task list.`}}
+else if(low.includes('what')&&(low.includes('today')||low.includes('focus')||low.includes('day'))){let open=data.tasks.filter(t=>!t.done);reply=open.length?`You have ${open.length} open tasks. `+open.slice(0,3).map((t,i)=>`${i+1}: ${t.title}`).join('. ')+'. Pick the most important one first, then take a break.':'Your task list is clear. Choose one useful priority, check your calendar in your usual calendar app, and leave room for a break.'}
+else if(low.includes('how many tasks')){reply=`You have ${data.tasks.filter(t=>!t.done).length} open tasks.`}
+else if(low.includes('check in')||low.includes('friend')){showView('people');reply=`You have ${data.people.length} people in your check-in list. You can add someone in the People tab.`}
+else if(low.startsWith('note:')){data.notes.push({id:id(),title:'Quick note',body:c.slice(5).trim(),created:Date.now()});save();reply='Saved your note on this device.'}
+$('heroText').textContent=reply;$('voiceStatus').textContent='JARVIS: '+reply;speak(reply);$('commandInput').value='';}
+$('commandForm').addEventListener('submit',e=>{e.preventDefault();respond($('commandInput').value)});
+document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click',()=>respond(b.dataset.command)));
+document.querySelectorAll('[data-info]').forEach(b=>b.addEventListener('click',()=>toast(b.dataset.info)));
+let recognition=null,listening=false;
+function startVoice(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$('voiceStatus').textContent='Live speech recognition is not supported here. Type a command below; spoken replies may still work.';speak('Speech recognition is not available in this browser. You can type a command instead.');return}
+ if(listening){try{recognition.stop()}catch(e){}return}
+ recognition=new SR();recognition.lang='en-GB';recognition.interimResults=false;recognition.maxAlternatives=1;
+ recognition.onstart=()=>{listening=true;$('orb').classList.add('listening');$('voiceStatus').textContent='Listening… speak now.';$('voiceBtn').textContent='🎙 Listening…'};
+ recognition.onresult=e=>{const text=e.results[0][0].transcript;$('commandInput').value=text;respond(text)};
+ recognition.onerror=e=>{$('voiceStatus').textContent='Voice input issue: '+e.error+'. You can type instead.'};
+ recognition.onend=()=>{listening=false;$('orb').classList.remove('listening');$('voiceBtn').textContent='🎙 Talk to JARVIS'};
+ try{recognition.start()}catch(e){$('voiceStatus').textContent='Could not start the microphone. Check browser permissions.'}
+}
+$('voiceBtn').addEventListener('click',startVoice);
+$('stopVoiceBtn').addEventListener('click',()=>{if(recognition&&listening)recognition.stop();if('speechSynthesis'in window)speechSynthesis.cancel();$('orb').classList.remove('speaking','listening');$('voiceStatus').textContent='Voice stopped.'});
+const hour=new Date().getHours();$('greeting').textContent=hour<12?'Good morning.':hour<18?'Good afternoon.':'Good evening.';$('datePill').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+render();
+if('serviceWorker'in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>

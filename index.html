@@ -140,6 +140,90 @@ document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click
 document.querySelectorAll('[data-info]').forEach(b=>b.addEventListener('click',()=>toast(b.dataset.info)));
 let recognition=null,listening=false;
 function startVoice(){
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!SR) {
+$(‘voiceStatus’).textContent = ‘Speech recognition is unavailable. Type a command instead.’;
+speak(‘Speech recognition is unavailable. You can type a command instead.’);
+return;
+}
+
+if (listening) {
+try { recognition.stop(); } catch(e) {}
+return;
+}
+
+if (recognition) {
+try { recognition.abort(); } catch(e) {}
+}
+
+recognition = new SR();
+recognition.lang = ‘en-GB’;
+recognition.interimResults = true;
+recognition.maxAlternatives = 1;
+recognition.continuous = false;
+
+let gotResult = false;
+let voiceTimer;
+
+recognition.onstart = () => {
+listening = true;
+$(‘orb’).classList.add(‘listening’);
+$(‘voiceStatus’).textContent = ‘Listening… speak now.’;
+$(‘voiceBtn’).textContent = ‘🎙 Listening…’;
+
+voiceTimer = setTimeout(() => {
+  if (!gotResult && recognition) {
+    $('voiceStatus').textContent = 'No words detected. Tap the microphone and try again, or type your command.';
+    try { recognition.abort(); } catch(e) {}
+  }
+}, 8000);
+
+};
+
+recognition.onresult = e => {
+gotResult = true;
+clearTimeout(voiceTimer);
+
+let transcript = '';
+for (let i = e.resultIndex; i < e.results.length; i++) {
+  transcript += e.results[i][0].transcript;
+}
+transcript = transcript.trim();
+if (transcript) {
+  $('commandInput').value = transcript;
+  $('voiceStatus').textContent = 'Heard: ' + transcript;
+  respond(transcript);
+}
+
+};
+
+recognition.onerror = e => {
+clearTimeout(voiceTimer);
+$(‘voiceStatus’).textContent =
+’Voice issue: ’ + e.error + ‘. Try again or type your command.’;
+};
+
+recognition.onend = () => {
+clearTimeout(voiceTimer);
+listening = false;
+$(‘orb’).classList.remove(‘listening’);
+$(‘voiceBtn’).textContent = ‘🎙 Talk to JARVIS’;
+
+if (!gotResult && $('voiceStatus').textContent === 'Listening… speak now.') {
+  $('voiceStatus').textContent = 'No speech was recognised. Please try again or type your command.';
+}
+
+};
+
+try {
+recognition.start();
+} catch(e) {
+clearTimeout(voiceTimer);
+listening = false;
+$(‘voiceStatus’).textContent = ‘Could not start voice input. Please try again.’;
+}
+}
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SR){$('voiceStatus').textContent='Live speech recognition is not supported here. Type a command below; spoken replies may still work.';speak('Speech recognition is not available in this browser. You can type a command instead.');return}
  if(listening){try{recognition.stop()}catch(e){}return}
